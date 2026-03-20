@@ -17,8 +17,10 @@
 
 [Interactive Spotify TFT Display (ESP32)-bom (1).csv](https://github.com/user-attachments/files/26136072/Interactive.Spotify.TFT.Display.ESP32.-bom.1.csv)
 
+# BOM 2
+
 | Name | Purpose | Cost Per Item (USD) | Quantity | Total (USD) | Link | Distributor |
-|---|---:|---:|---|
+|---|---:|---:|---:|---:|---:|---|
 | Jumper Wires (Male To Male, 20cm set) | Connecting components on breadboard | 4.00 | 1 | 4.00 | https://www.aliexpress.com/item/1005004937144019.html | AliExpress |
 | Solderless PCB Breadboard (400 Tie Points) | Prototyping and circuit connections | 4.30 | 1 | 4.30 | https://www.aliexpress.com/item/1005001704653648.html | AliExpress |
 | 6x6mm 4PIN Tactile Tact Push Button (20pcs pack) | User input controls for device interaction | 2.50 | 1 | 2.50 | https://www.aliexpress.com/item/1005004496143589.html | AliExpress |
