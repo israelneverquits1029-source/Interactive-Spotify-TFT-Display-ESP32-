@@ -36,3 +36,11 @@ This device is designed as a compact smart desk companion. Beyond displaying Spo
 
 ## Documentation
 Development progress is being tracked through Stasis journals and mirrored here as the project advances.
+
+## Images
+
+![image](https://stasis.hackclub-assets.com/images/1774004431243-fij3lr.png)
+![image](https://stasis.hackclub-assets.com/images/1774004168877-e6uacy.png)
+![image](https://stasis.hackclub-assets.com/images/1774004249071-qfslxy.png)
+![image](https://stasis.hackclub-assets.com/images/1774004337713-3v7j2j.png)
+
