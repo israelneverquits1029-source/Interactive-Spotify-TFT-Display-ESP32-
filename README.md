@@ -50,4 +50,5 @@ Development progress is being tracked through Stasis journals and mirrored here 
 ![image](https://stasis.hackclub-assets.com/images/1774016014973-e9l5l8.png)
 ![image](https://stasis.hackclub-assets.com/images/1774016014936-xvbbq0.png)
 
-
+![image](https://stasis.hackclub-assets.com/images/1774019198018-cwwinh.png)
+![image](https://stasis.hackclub-assets.com/images/1774019227149-l9el46.png)
