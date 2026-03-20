@@ -23,7 +23,7 @@ An ESP32-based Spotify display system using a TFT screen, featuring real-time tr
 - [x] Fusion 360 case designed
 - [x] First design journal entry completed
 - [x] Initial BOM planning completed
-- [ ] Second design journal entry completed
+- [x] Second design journal entry completed
 - [ ] API setup research
 - [ ] Spotify integration
 - [ ] Button control implementation
