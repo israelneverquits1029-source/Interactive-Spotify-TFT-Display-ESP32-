@@ -15,7 +15,7 @@ An ESP32-based Spotify display system using a TFT screen, featuring real-time tr
 - 3x tactile push buttons
 - Solderless breadboard
 - Male-to-male jumper wires
-- Custom case designed in Fusion 360
+- Custom case designed in Fusion 360 (Optional)
 
 ## Project Status
 - [x] Repository created
@@ -23,9 +23,13 @@ An ESP32-based Spotify display system using a TFT screen, featuring real-time tr
 - [x] Fusion 360 case designed
 - [x] First design journal entry completed
 - [x] Initial BOM planning completed
+- [ ] Second design journal entry completed
 - [ ] API setup research
 - [ ] Spotify integration
 - [ ] Button control implementation
 
 ## Documentation
-Development progress is being tracked through Stasis journals and mirrored here as the project progresses.
+Development progress is being tracked through Stasis journals and mirrored here as the project advances.
+
+During material sourcing and BOM finalization, I realized I didnt have access to 3D printer to actually create the initial case for the project, so I decided to switch to a breadboard prototype
+This realization is also what influenced the badges I picked for the project. Since im eventually not going to print a case, I changed from the initial SPI, CAD, and WiFi badges to SPI, Displays, and WiFi badges.
