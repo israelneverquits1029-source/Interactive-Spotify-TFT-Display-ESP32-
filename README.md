@@ -52,3 +52,15 @@ Development progress is being tracked through Stasis journals and mirrored here 
 
 ![image](https://stasis.hackclub-assets.com/images/1774019198018-cwwinh.png)
 ![image](https://stasis.hackclub-assets.com/images/1774019227149-l9el46.png)
+
+# Bill of Materials
+
+[Interactive Spotify TFT Display (ESP32)-bom (4).csv](https://github.com/user-attachments/files/26143452/Interactive.Spotify.TFT.Display.ESP32.-bom.4.csv)
+
+| Name | Purpose | Cost Per Item (USD) | Quantity | Total (USD) | Link | Distributor |
+|---|---:|---:|---:|---:|---:|---|
+| Jumper wires (Male to Male, 15cm set) | Connecting components on the breadboard | 3.50 | 1 | 3.50 | https://www.aliexpress.com/item/33020841416.html | AliExpress |
+| 6x6mm 4PIN Tactile Tact Push Button (20pcs pack) | User input controls for device interaction | 2.30 | 1 | 2.30 | https://www.aliexpress.com/item/33020841416.html | AliExpress |
+| Solderless PCB Breadboard (400 Tie Points) | Prototyping and circuit connections | 2.90 | 1 | 2.90 | https://www.aliexpress.com/item/1005003954777017.html | AliExpress |
+| ESP32 (C3 LOLIN Mini V2.1.0) | Main controller for WiFi connectivity and display control | 5.80 | 1 | 5.80 | https://www.aliexpress.com/item/1005004740051202.html | AliExpress |
+| 1.8" TFT LCD Display (ST7735) | Display module for showing Spotify track information and UI | 4.50 | 1 | 4.50 | https://www.aliexpress.com/item/1005005978400236.html | AliExpress |
