@@ -30,6 +30,3 @@ An ESP32-based Spotify display system using a TFT screen, featuring real-time tr
 
 ## Documentation
 Development progress is being tracked through Stasis journals and mirrored here as the project advances.
-
-During material sourcing and BOM finalization, I realized I didnt have access to 3D printer to actually create the initial case for the project, so I decided to switch to a breadboard prototype
-This realization is also what influenced the badges I picked for the project. Since im eventually not going to print a case, I changed from the initial SPI, CAD, and WiFi badges to SPI, Displays, and WiFi badges.
