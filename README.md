@@ -5,20 +5,13 @@ I added in some more features like mode changing using the buttons, between mode
 I made this project mainly for learning purposes, cause ive never worked with hardware before, but there are other reasons as well, like im very interested in building hardware projects, even though i barely know anything (sounds funny right? haha). But seriously i like hardware stuff, so fully funded project plus im learning plus im having fun plusss prizes as well seems like a great reason to me!
 
 # Pictures
-![image](https://stasis.hackclub-assets.com/images/1774004431243-fij3lr.png)
-![image](https://stasis.hackclub-assets.com/images/1774004168877-e6uacy.png)
-![image](https://stasis.hackclub-assets.com/images/1774004249071-qfslxy.png)
-![image](https://stasis.hackclub-assets.com/images/1774004337713-3v7j2j.png)
+<img width="649" height="526" alt="project image" src="https://github.com/user-attachments/assets/69632f1e-da08-4798-bdf0-56c2f2b02ff5" />
 
-![image](https://stasis.hackclub-assets.com/images/1774007923430-bri6wj.png)
-![image](https://stasis.hackclub-assets.com/images/1774007961441-h6s215.png)
-![image](https://stasis.hackclub-assets.com/images/1774015952579-45gkic.png)
-![image](https://stasis.hackclub-assets.com/images/1774016014973-e9l5l8.png)
-![image](https://stasis.hackclub-assets.com/images/1774016014936-xvbbq0.png)
+<img width="540" height="485" alt="project image 3" src="https://github.com/user-attachments/assets/5e6b81a9-2578-4529-a28d-dd2285c0c7e7" />
 
-![image](https://stasis.hackclub-assets.com/images/1774019198018-cwwinh.png)
-![image](https://stasis.hackclub-assets.com/images/1774019227149-l9el46.png)
+<img width="621" height="521" alt="project image 2" src="https://github.com/user-attachments/assets/52725d96-33a1-4290-b476-c37072faff8e" />
 
+<img width="628" height="536" alt="CAD model" src="https://github.com/user-attachments/assets/79c29c0d-dcd3-4384-aa1c-e42748b8e965" />
 
 [Interactive Spotify TFT Display (ESP32)-bom (1).csv](https://github.com/user-attachments/files/26483581/Interactive.Spotify.TFT.Display.ESP32.-bom.1.csv)
 
