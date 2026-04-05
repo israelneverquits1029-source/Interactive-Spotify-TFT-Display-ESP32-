@@ -15,7 +15,7 @@ I made this project mainly for learning purposes, cause ive never worked with ha
 
 <img width="628" height="536" alt="CAD model" src="https://github.com/user-attachments/assets/79c29c0d-dcd3-4384-aa1c-e42748b8e965" />
 
-#Bill Of Materials
+# Bill Of Materials
 
 [Interactive Spotify TFT Display (ESP32)-bom (1).csv](https://github.com/user-attachments/files/26483581/Interactive.Spotify.TFT.Display.ESP32.-bom.1.csv)
 
