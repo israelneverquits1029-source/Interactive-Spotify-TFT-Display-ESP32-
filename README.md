@@ -21,7 +21,7 @@ I made this project mainly for learning purposes, cause ive never worked with ha
 
 # Bill Of Materials
 
-[Interactive Spotify TFT Display (ESP32)-bom (1).csv](https://github.com/user-attachments/files/26483581/Interactive.Spotify.TFT.Display.ESP32.-bom.1.csv)
+[Interactive Spotify TFT Display (ESP32)-bom (2).csv](https://github.com/user-attachments/files/26660223/Interactive.Spotify.TFT.Display.ESP32.-bom.2.csv)
 
 | Name | Purpose | Quantity | Total Cost (USD) | Link | Distributor |
 |---:|---|---|---|---|---:|
@@ -30,3 +30,7 @@ I made this project mainly for learning purposes, cause ive never worked with ha
 | Solderless PCB Breadboard (400 Tie Points) | Prototyping and circuit connections | 1 | 2.00 | https://www.aliexpress.com/item/1005003954777017.html | AliExpress |
 | ESP32 (C3 LOLIN Mini V2.1.0) | Main controller for WiFi connectivity and display control | 1 | 4.70 | https://www.aliexpress.com/item/1005004740051202.html | AliExpress |
 | 1.8" TFT LCD Display (ST7735) | Display module for showing Spotify track information and UI | 1 | 5.60 | https://www.aliexpress.com/item/1005009447193931.html | AliExpress |
+| Rotary Encoder | For volume control | 1 | 2.30 | https://www.aliexpress.com/item/1005009040530746.html | AliExpress |
+
+
+
