@@ -5,19 +5,22 @@ I added in some more features like mode changing using the buttons, between mode
 I made this project mainly for learning purposes, cause ive never worked with hardware before, but there are other reasons as well, like im very interested in building hardware projects, even though i barely know anything (sounds funny right? haha). But seriously i like hardware stuff, so fully funded project plus im learning plus im having fun plusss prizes as well seems like a great reason to me!
 
 # Pictures
+
 <img width="649" height="526" alt="project image" src="https://github.com/user-attachments/assets/69632f1e-da08-4798-bdf0-56c2f2b02ff5" />
 
 <img width="540" height="485" alt="project image 3" src="https://github.com/user-attachments/assets/5e6b81a9-2578-4529-a28d-dd2285c0c7e7" />
+
+<img width="575" height="498" alt="image 1" src="https://github.com/user-attachments/assets/de61f574-af3c-4014-a2bb-64c6b720be1e" />
 
 <img width="621" height="521" alt="project image 2" src="https://github.com/user-attachments/assets/52725d96-33a1-4290-b476-c37072faff8e" />
 
 # Full CAD Model
 
-<img width="628" height="536" alt="CAD model" src="https://github.com/user-attachments/assets/79c29c0d-dcd3-4384-aa1c-e42748b8e965" />
+<img width="569" height="511" alt="3D Model" src="https://github.com/user-attachments/assets/383ef3b3-8203-4eea-98eb-8dd90add8564" />
 
 # Wiring Diagram
 
-<img width="599" height="565" alt="Spotify Display Wiring Diagram" src="https://github.com/user-attachments/assets/0b7b920a-78d0-4b86-8089-f1a98060fded" />
+<img width="670" height="574" alt="Wiring Diagram" src="https://github.com/user-attachments/assets/1f74f3b0-1b6b-4fa3-8427-716bde642704" />
 
 # Bill Of Materials
 
