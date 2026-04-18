@@ -4,7 +4,7 @@ I added in some more features like mode changing using the buttons, between mode
 
 I made this project mainly for learning purposes, cause ive never worked with hardware before, but there are other reasons as well, like im very interested in building hardware projects, even though i barely know anything (sounds funny right? haha). But seriously i like hardware stuff, so fully funded project plus im learning plus im having fun plusss prizes as well seems like a great reason to me!
 
-# Pictures
+# Images
 
 <img width="649" height="526" alt="project image" src="https://github.com/user-attachments/assets/69632f1e-da08-4798-bdf0-56c2f2b02ff5" />
 
