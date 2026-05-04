@@ -1,387 +1,284 @@
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <ArduinoJson.h>
 #include <Adafruit_GFX.h>
-#include <Adafruit_ILI9341.h>
+#include <Adafruit_ST7735.h>
 #include <SPI.h>
 
-// ===== TFT pins =====
-#define TFT_CS   4
-#define TFT_DC   5
-#define TFT_RST  6
-#define TFT_MOSI 19
-#define TFT_CLK  18
+#define TFT_CS   10
+#define TFT_DC   1
+#define TFT_RST  3
+#define TFT_SCLK 4
+#define TFT_MOSI 6
 
-Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
+#define BTN_NEXT     7
+#define BTN_PREV     5
+#define BTN_PLAY     2
+#define BTN_VOL_UP   0
+#define BTN_VOL_DOWN 8
 
-// ===== Button pins =====
-const int btnLeft  = 0;
-const int btnMid   = 1;
-const int btnRight = 10;
+const char* ssid = "ROYALTY";
+const char* password = "DINOMASTER101$";
+const char* serverBase = "http://10.200.56.58:5000";
 
-// Rotary encoder pins
-const int encCLK = 7;
-const int encDT  = 2;
-const int encSW  = 3;
+Adafruit_ST7735 tft = Adafruit_ST7735(
+  TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST
+);
 
-// Encoder state
-int lastCLKState = HIGH;
-unsigned long lastEncTime = 0;
+String title = "Loading...";
+String artist = "";
+bool playing = false;
 
-// Volume state
-int volumeLevel = 50;   // 0 to 100
-bool isMuted = false;
+int progress = 0;
+int duration = 100;
+int volumeLevel = 50;
 
-// ===== Button timing =====
-unsigned long pressStart[3] = {0, 0, 0};
-bool pressed[3] = {false, false, false};
-const unsigned long longPressTime = 500;
+unsigned long lastFetch = 0;
+unsigned long lastProgressTick = 0;
+unsigned long lastButtonPress = 0;
+unsigned long volumePopupTime = 0;
 
-// ===== UI / state =====
-int currentPage = 0;   // 0 = Now Playing, 1 = Track Info, 2 = System Status
-bool isPlaying = true;
-unsigned long lastProgressUpdate = 0;
-unsigned long lastScreenRefresh = 0;
-int progressPercent = 0;
+bool showVolumePopup = false;
 
-String wifiStatus = "Connected";
-String apiStatus  = "Test Data";
-String lastAction = "System Ready";
-
-// ===== Mock Spotify data =====
-struct Track {
-  String title;
-  String artist;
-  String album;
-  int durationSec;
-};
-
-Track tracks[] = {
-  {"Blinding Lights", "The Weeknd", "After Hours", 200},
-  {"As It Was", "Harry Styles", "Harry's House", 167},
-  {"Starboy", "The Weeknd", "Starboy", 230},
-  {"Believer", "Imagine Dragons", "Evolve", 204}
-};
-
-const int trackCount = sizeof(tracks) / sizeof(tracks[0]);
-int currentTrack = 0;
-
-// ===== Colors =====
-#define BG_COLOR    ILI9341_BLACK
-#define TEXT_COLOR  ILI9341_WHITE
-#define ACCENT      ILI9341_GREEN
-#define SUBTEXT     ILI9341_CYAN
-#define WARN        ILI9341_YELLOW
-#define BAR_BG      ILI9341_DARKGREY
-
-// ===== Helpers =====
-void logAction(const String& msg) {
-  lastAction = msg;
-  Serial.println(msg);
-}
-
-void volumeUp() {
-  if (!isMuted && volumeLevel < 100) {
-    volumeLevel += 5;
-    if (volumeLevel > 100) volumeLevel = 100;
-    Serial.println("Volume Up");
-    refreshDisplay();
-  }
-}
-
-void volumeDown() {
-  if (!isMuted && volumeLevel > 0) {
-    volumeLevel -= 5;
-    if (volumeLevel < 0) volumeLevel = 0;
-    Serial.println("Volume Down");
-    refreshDisplay();
-  }
-}
-
-void toggleMute() {
-  isMuted = !isMuted;
-  Serial.println(isMuted ? "Muted" : "Unmuted");
-  refreshDisplay();
-}
-
-void drawHeader(const String& title) {
-  tft.fillScreen(BG_COLOR);
-  tft.setTextSize(2);
-  tft.setTextColor(ACCENT);
-  tft.setCursor(10, 10);
-  tft.println(title);
-  tft.drawLine(10, 30, 150, 30, ACCENT);
-}
-
-void drawProgressBar(int x, int y, int w, int h, int percent) {
-  tft.drawRect(x, y, w, h, TEXT_COLOR);
-  tft.fillRect(x + 1, y + 1, w - 2, h - 2, BAR_BG);
-
-  int fillWidth = map(percent, 0, 100, 0, w - 2);
-  tft.fillRect(x + 1, y + 1, fillWidth, h - 2, ACCENT);
-}
-
-void drawNowPlayingPage() {
-  drawHeader("Now Playing");
-
-  tft.setTextSize(2);
-  tft.setTextColor(TEXT_COLOR);
-  tft.setCursor(10, 45);
-  tft.println(tracks[currentTrack].title);
-
-  tft.setTextSize(2);
-  tft.setTextColor(SUBTEXT);
-  tft.setCursor(10, 70);
-  tft.println(tracks[currentTrack].artist);
-
-  tft.setTextSize(1);
-  tft.setTextColor(WARN);
-  tft.setCursor(10, 95);
-  tft.print("Status: ");
-  tft.println(isPlaying ? "Playing" : "Paused");
-
-  tft.setCursor(10, 110);
-  tft.print("Album: ");
-  tft.println(tracks[currentTrack].album);
-
-  drawProgressBar(10, 135, 140, 12, progressPercent);
-
-  tft.setTextColor(TEXT_COLOR);
-  tft.setCursor(10, 155);
-  tft.print(progressPercent);
-  tft.println("%");
-
-  tft.setTextSize(1);
-  tft.setTextColor(ILI9341_LIGHTGREY);
-  tft.setCursor(5, 175);
-  tft.println("Short: Prev / Play / Next");
-  tft.setCursor(5, 187);
-  tft.println("Long: Page- / Refresh / Page+");
-
-  tft.setCursor(10, 145);
-  tft.setTextColor(ILI9341_WHITE);
-  tft.print("Volume: ");
-
-  if (isMuted) {
-    tft.println("Muted");
-  } else {
-    tft.print(volumeLevel);
-    tft.println("%");
-  }
-}
-
-void drawTrackInfoPage() {
-  drawHeader("Track Info");
-
-  tft.setTextSize(2);
-  tft.setTextColor(TEXT_COLOR);
-  tft.setCursor(10, 45);
-  tft.println(tracks[currentTrack].title);
-
-  tft.setTextSize(1);
-  tft.setTextColor(SUBTEXT);
-  tft.setCursor(10, 75);
-  tft.print("Artist: ");
-  tft.println(tracks[currentTrack].artist);
-
-  tft.setCursor(10, 90);
-  tft.print("Album: ");
-  tft.println(tracks[currentTrack].album);
-
-  tft.setCursor(10, 105);
-  tft.print("Duration: ");
-  tft.print(tracks[currentTrack].durationSec);
-  tft.println(" sec");
-
-  tft.setCursor(10, 120);
-  tft.print("Track #: ");
-  tft.print(currentTrack + 1);
-  tft.print(" / ");
-  tft.println(trackCount);
-
-  tft.setCursor(10, 150);
-  tft.setTextColor(WARN);
-  tft.print("Last action:");
-  tft.setCursor(10, 165);
-  tft.setTextColor(TEXT_COLOR);
-  tft.println(lastAction);
-}
-
-void drawSystemStatusPage() {
-  drawHeader("System Status");
-
-  tft.setTextSize(1);
-  tft.setTextColor(TEXT_COLOR);
-
-  tft.setCursor(10, 45);
-  tft.print("WiFi: ");
-  tft.println(wifiStatus);
-
-  tft.setCursor(10, 60);
-  tft.print("API: ");
-  tft.println(apiStatus);
-
-  tft.setCursor(10, 75);
-  tft.print("Track Loaded: ");
-  tft.println(currentTrack + 1);
-
-  tft.setCursor(10, 90);
-  tft.print("Playback: ");
-  tft.println(isPlaying ? "Playing" : "Paused");
-
-  tft.setCursor(10, 115);
-  tft.setTextColor(WARN);
-  tft.println("This is a testing build that uses");
-  tft.setCursor(10, 127);
-  tft.println("imaginary track data to test");
-  tft.setCursor(10, 139);
-  tft.println("UI and input logic.");
-
-  tft.setCursor(10, 165);
-  tft.setTextColor(TEXT_COLOR);
-  tft.print("Page ");
-  tft.print(currentPage + 1);
-  tft.print(" of 3");
-}
-
-void refreshDisplay() {
-  if (currentPage == 0) {
-    drawNowPlayingPage();
-  } else if (currentPage == 1) {
-    drawTrackInfoPage();
-  } else {
-    drawSystemStatusPage();
-  }
-}
-
-void previousTrack() {
-  currentTrack--;
-  if (currentTrack < 0) currentTrack = trackCount - 1;
-  progressPercent = 0;
-  logAction("Previous Track");
-}
-
-void nextTrack() {
-  currentTrack++;
-  if (currentTrack >= trackCount) currentTrack = 0;
-  progressPercent = 0;
-  logAction("Next Track");
-}
-
-void togglePlayback() {
-  isPlaying = !isPlaying;
-  logAction(isPlaying ? "Playing" : "Paused");
-}
-
-void pageLeft() {
-  currentPage--;
-  if (currentPage < 0) currentPage = 2;
-  logAction("Page Left");
-}
-
-void pageRight() {
-  currentPage++;
-  if (currentPage > 2) currentPage = 0;
-  logAction("Page Right");
-}
-
-void refreshSystem() {
-  // Placeholder for future WiFi/API reconnect logic
-  wifiStatus = "Connected";
-  apiStatus = "Refreshed";
-  logAction("Refreshing...");
-}
-
-void shortPress(int id) {
-  if (id == 0) previousTrack();
-  if (id == 1) togglePlayback();
-  if (id == 2) nextTrack();
-  refreshDisplay();
-}
-
-void longPress(int id) {
-  if (id == 0) pageLeft();
-  if (id == 1) refreshSystem();
-  if (id == 2) pageRight();
-  refreshDisplay();
-}
-
-void handleButton(int pin, int id) {
-  bool state = digitalRead(pin);
-
-  if (state == LOW && !pressed[id]) {
-    pressed[id] = true;
-    pressStart[id] = millis();
-  }
-
-  if (state == HIGH && pressed[id]) {
-    pressed[id] = false;
-
-    unsigned long duration = millis() - pressStart[id];
-
-    if (duration < longPressTime) {
-      shortPress(id);
-    } else {
-      longPress(id);
-    }
-
-    delay(150); // simple debounce
-  }
-}
+const unsigned long fetchInterval = 900;
+const unsigned long debounceDelay = 120;
+const unsigned long volumePopupDuration = 900;
 
 void setup() {
   Serial.begin(115200);
 
-  pinMode(btnLeft, INPUT_PULLUP);
-  pinMode(btnMid, INPUT_PULLUP);
-  pinMode(btnRight, INPUT_PULLUP);
+  pinMode(BTN_NEXT, INPUT_PULLUP);
+  pinMode(BTN_PREV, INPUT_PULLUP);
+  pinMode(BTN_PLAY, INPUT_PULLUP);
+  pinMode(BTN_VOL_UP, INPUT_PULLUP);
+  pinMode(BTN_VOL_DOWN, INPUT_PULLUP);
 
-  SPI.begin(TFT_CLK, -1, TFT_MOSI, TFT_CS);
-  tft.begin();
+  tft.initR(INITR_BLACKTAB);
   tft.setRotation(1);
+  tft.fillScreen(ST77XX_BLACK);
 
-  refreshDisplay();
-  Serial.println("Spotify Display System Ready");
+  drawMessage("Connecting WiFi...");
 
-  pinMode(encCLK, INPUT);
-  pinMode(encDT, INPUT);
-  pinMode(encSW, INPUT_PULLUP);
+  WiFi.begin(ssid, password);
 
-  lastCLKState = digitalRead(encCLK);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(300);
+  }
+
+  drawMessage("WiFi Connected");
+  delay(500);
+
+  fetchData();
+  drawUI();
 }
 
 void loop() {
-  handleButton(btnLeft, 0);
-  handleButton(btnMid, 1);
-  handleButton(btnRight, 2);
+  unsigned long now = millis();
 
-  // update progress only while playing
-  if (isPlaying && millis() - lastProgressUpdate > 1000) {
-    lastProgressUpdate = millis();
-    progressPercent++;
-    if (progressPercent > 100) progressPercent = 0;
-  }
+  handleButtons();
 
-  // ===== Rotary Encoder Rotation =====
-int currentCLKState = digitalRead(encCLK);
-
-if (currentCLKState != lastCLKState) {
-  if (millis() - lastEncTime > 5) {
-    lastEncTime = millis();
-
-    if (lastCLKState == HIGH && currentCLKState == LOW) {
-      int dtState = digitalRead(encDT);
-
-      if (dtState == HIGH) {
-        volumeUp();
-      } else {
-        volumeDown();
-      }
+  if (playing && now - lastProgressTick >= 1000) {
+    lastProgressTick = now;
+    if (progress < duration) {
+      progress++;
+      drawUI();
     }
   }
-}
-lastCLKState = currentCLKState;
 
-// ===== Rotary Encoder Press =====
-if (digitalRead(encSW) == LOW) {
-  toggleMute();
-  delay(200);
+  if (now - lastFetch >= fetchInterval) {
+    lastFetch = now;
+    fetchData();
+    drawUI();
+  }
+
+  if (showVolumePopup && now - volumePopupTime >= volumePopupDuration) {
+    showVolumePopup = false;
+    drawUI();
+  }
 }
+
+void fetchData() {
+  if (WiFi.status() != WL_CONNECTED) return;
+
+  HTTPClient http;
+  http.setTimeout(600);
+
+  String url = String(serverBase) + "/status";
+  http.begin(url);
+
+  int code = http.GET();
+
+  if (code > 0) {
+    String payload = http.getString();
+
+    StaticJsonDocument<768> doc;
+    DeserializationError error = deserializeJson(doc, payload);
+
+    if (!error) {
+      title = doc["title"].as<String>();
+      artist = doc["artist"].as<String>();
+      playing = doc["playing"];
+      progress = doc["progress"];
+      duration = doc["duration"];
+
+      if (duration <= 0) duration = 100;
+      if (progress < 0) progress = 0;
+      if (progress > duration) progress = duration;
+    }
+  }
+
+  http.end();
+}
+
+void sendCommand(String cmd) {
+  if (WiFi.status() != WL_CONNECTED) return;
+
+  HTTPClient http;
+  http.setTimeout(400);
+
+  String url = String(serverBase) + "/control/" + cmd;
+  http.begin(url);
+  http.GET();
+  http.end();
+}
+
+void handleButtons() {
+  if (millis() - lastButtonPress < debounceDelay) return;
+
+  if (!digitalRead(BTN_NEXT)) {
+    sendCommand("next");
+    title = "Changing...";
+    artist = "";
+    progress = 0;
+    drawUI();
+    lastButtonPress = millis();
+  }
+
+  if (!digitalRead(BTN_PREV)) {
+    sendCommand("previous");
+    title = "Changing...";
+    artist = "";
+    progress = 0;
+    drawUI();
+    lastButtonPress = millis();
+  }
+
+  if (!digitalRead(BTN_PLAY)) {
+    playing = !playing;
+    drawUI();
+    sendCommand("playpause");
+    lastButtonPress = millis();
+  }
+
+  if (!digitalRead(BTN_VOL_UP)) {
+    volumeLevel += 5;
+    if (volumeLevel > 100) volumeLevel = 100;
+
+    showVolumePopup = true;
+    volumePopupTime = millis();
+
+    drawUI();
+    sendCommand("volumeup");
+
+    lastButtonPress = millis();
+  }
+
+  if (!digitalRead(BTN_VOL_DOWN)) {
+    volumeLevel -= 5;
+    if (volumeLevel < 0) volumeLevel = 0;
+
+    showVolumePopup = true;
+    volumePopupTime = millis();
+
+    drawUI();
+    sendCommand("volumedown");
+
+    lastButtonPress = millis();
+  }
+}
+
+void drawMessage(String msg) {
+  tft.fillScreen(ST77XX_BLACK);
+  tft.setTextColor(ST77XX_WHITE);
+  tft.setTextSize(1);
+  tft.setCursor(10, 50);
+  tft.print(msg);
+}
+
+void drawUI() {
+  tft.fillScreen(ST77XX_BLACK);
+
+  tft.fillRect(0, 0, 160, 18, ST77XX_GREEN);
+  tft.setTextColor(ST77XX_BLACK);
+  tft.setTextSize(1);
+  tft.setCursor(7, 5);
+  tft.print("MUSIC DISPLAY");
+
+  tft.drawRect(8, 28, 42, 42, ST77XX_WHITE);
+  tft.fillRect(12, 32, 34, 34, ST77XX_GREEN);
+
+  tft.setTextColor(ST77XX_WHITE);
+  tft.setCursor(58, 28);
+  tft.print(trimText(title, 16));
+
+  tft.setTextColor(ST77XX_CYAN);
+  tft.setCursor(58, 43);
+  tft.print(trimText(artist, 16));
+
+  tft.setTextColor(playing ? ST77XX_GREEN : ST77XX_YELLOW);
+  tft.setCursor(58, 58);
+  tft.print(playing ? "Now Playing" : "Paused");
+
+  tft.setTextColor(ST77XX_WHITE);
+  tft.setCursor(8, 84);
+  tft.print(formatTime(progress));
+
+  tft.setCursor(128, 84);
+  tft.print(formatTime(duration));
+
+  tft.drawRect(8, 98, 144, 8, ST77XX_WHITE);
+
+  int bar = map(progress, 0, duration, 0, 142);
+  if (bar < 0) bar = 0;
+  if (bar > 142) bar = 142;
+
+  tft.fillRect(9, 99, bar, 6, ST77XX_GREEN);
+
+  if (showVolumePopup) {
+    drawVolumePopup();
+  }
+}
+
+void drawVolumePopup() {
+  tft.fillRect(20, 45, 120, 40, ST77XX_BLACK);
+  tft.drawRect(20, 45, 120, 40, ST77XX_WHITE);
+
+  tft.setTextColor(ST77XX_WHITE);
+  tft.setCursor(30, 53);
+  tft.print("Volume ");
+  tft.print(volumeLevel);
+  tft.print("%");
+
+  tft.drawRect(30, 68, 100, 8, ST77XX_WHITE);
+
+  int volBar = map(volumeLevel, 0, 100, 0, 98);
+  tft.fillRect(31, 69, volBar, 6, ST77XX_GREEN);
+}
+
+String trimText(String txt, int maxLen) {
+  if (txt.length() > maxLen) {
+    return txt.substring(0, maxLen - 2) + "..";
+  }
+  return txt;
+}
+
+String formatTime(int seconds) {
+  int mins = seconds / 60;
+  int secs = seconds % 60;
+
+  String result = String(mins) + ":";
+  if (secs < 10) result += "0";
+  result += String(secs);
+
+  return result;
 }
